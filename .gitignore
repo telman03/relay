@@ -1,0 +1,18 @@
+# Binaries
+bin/
+*.exe
+
+# Mac
+.DS_Store
+
+# IDE
+.vscode/
+.idea/
+
+# Local env
+.env
+.env.local
+
+# Generated proto code is committed (so reviewers can read it without running protoc).
+# If you'd rather generate on build, uncomment:
+# internal/pb/
