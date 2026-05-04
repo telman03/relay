@@ -58,7 +58,15 @@ git commit -m "relay: initial scaffold"
    ```bash
    go install google.golang.org/protobuf/cmd/protoc-gen-go@latest
    go install google.golang.org/grpc/cmd/protoc-gen-go-grpc@latest
-   protoc --go_out=. --go-grpc_out=. proto/relay.proto
+
+   # Note the --go_opt=module=... flag — without it, protoc creates a literal
+   # github.com/telman03/relay/internal/pb folder (because that's the go_package
+   # in the .proto). The module flag strips that prefix so output lands in
+   # internal/pb/ as expected.
+   protoc \
+     --go_out=. --go_opt=module=github.com/telman03/relay \
+     --go-grpc_out=. --go-grpc_opt=module=github.com/telman03/relay \
+     proto/relay.proto
    ```
    This creates `internal/pb/relay.pb.go` and `internal/pb/relay_grpc.pb.go`.
 
