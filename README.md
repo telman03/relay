@@ -1,6 +1,6 @@
 # relay
 
-Tiny two-service Go playground for practicing **gRPC, Kafka, Redis, Docker, and Kubernetes** in one repo. Built as interview prep — not a real product.
+A small two-service Go stack demonstrating **gRPC, Kafka, Redis, Docker, and Kubernetes** in one repo.
 
 ```
 [Client] --gRPC--> [api] --produce--> [Kafka] --consume--> [worker]
@@ -10,42 +10,61 @@ Tiny two-service Go playground for practicing **gRPC, Kafka, Redis, Docker, and 
 
 ## Services
 
-- **`cmd/api`** — gRPC server on `:8080`. Accepts `SubmitJob` RPCs, rate-limits per client via Redis token bucket, publishes accepted jobs to Kafka topic `relay.jobs`.
-- **`cmd/worker`** — Kafka consumer. Pulls from `relay.jobs`, "processes" each message (just logs for now).
+- **`cmd/api`** — gRPC server on `:8080`. Exposes `SubmitJob`. Per-client token-bucket rate limit (Redis + atomic Lua script). Accepted jobs are published to Kafka topic `relay.jobs` with `client_id` as the partition key (preserves per-client ordering).
+- **`cmd/worker`** — Kafka consumer in a consumer group. Pulls from `relay.jobs` and "processes" each message (logs it).
 
-## Run locally
+## Run locally with docker-compose
 
 ```bash
-# Bring up Kafka + Redis with docker-compose (added in Step 6)
-docker compose up -d
+docker compose up -d            # brings up Kafka + Redis
+go run ./cmd/api                # in terminal 1
+go run ./cmd/worker             # in terminal 2
 
-# In two separate terminals:
-go run ./cmd/api
-go run ./cmd/worker
-
-# Send a test request (Step 2 adds a tiny client tool)
-go run ./cmd/client submit "hello"
+grpcurl -plaintext \
+  -d '{"client_id":"alice","payload":"hi"}' \
+  localhost:8080 relay.Relay/SubmitJob
 ```
 
-## Run in Kubernetes
+## Run in Kubernetes (kind)
 
 ```bash
+kind create cluster --name relay
+kubectl config use-context kind-relay
+
+# Build images and load into the kind cluster
+docker build -f docker/Dockerfile.api    -t relay-api:local    .
+docker build -f docker/Dockerfile.worker -t relay-worker:local .
+kind load docker-image relay-api:local    --name relay
+kind load docker-image relay-worker:local --name relay
+
+# Apply manifests
 kubectl apply -f k8s/
-kubectl port-forward svc/relay-api 8080:8080
+
+# Port-forward and test
+kubectl port-forward -n relay svc/relay-api 8080:8080
+grpcurl -plaintext -d '{"client_id":"alice","payload":"k8s"}' \
+  localhost:8080 relay.Relay/SubmitJob
+
+kubectl logs -n relay deployment/relay-worker
 ```
 
-## What this teaches
+## Layout
 
-| Topic | Where |
+| Topic | File |
 |---|---|
+| gRPC contract | `proto/relay.proto` |
 | Multi-stage Docker build | `docker/Dockerfile.api`, `docker/Dockerfile.worker` |
-| K8s Deployment | `k8s/api-deployment.yaml`, `k8s/worker-deployment.yaml` |
-| K8s Service | `k8s/api-service.yaml` |
-| K8s StatefulSet | `k8s/kafka-statefulset.yaml` |
-| ConfigMap + Secret | `k8s/configmap.yaml`, `k8s/secret.yaml` |
-| gRPC unary + streaming | `proto/relay.proto`, `cmd/api/main.go` |
-| Pub-sub via Kafka | `cmd/api` produces, `cmd/worker` consumes |
-| Token-bucket rate limit | `internal/ratelimit/token.go` |
-| Microservices | api ↔ worker, decoupled via Kafka |
+| Token-bucket rate limit (Lua) | `internal/ratelimit/token_bucket.lua`, `internal/ratelimit/token.go` |
+| Kafka producer wrapper | `internal/kafka/client.go` |
+| K8s namespace / config / secret | `k8s/00-namespace.yaml`, `k8s/01-configmap.yaml`, `k8s/02-secret.yaml` |
+| Redis Deployment + Service | `k8s/10-redis.yaml` |
+| Kafka StatefulSet + headless Service | `k8s/20-kafka.yaml` |
+| API Deployment + Service + probes | `k8s/30-api.yaml` |
+| Worker Deployment | `k8s/40-worker.yaml` |
 
-See [BUILD.md](./BUILD.md) for the step-by-step guide.
+## Notes
+
+- Single-broker Kafka in KRaft mode (no Zookeeper).
+- Topic `relay.jobs` is auto-created on first publish for the local/kind setup. Production would pre-create with explicit partition count and replication factor (e.g. via Terraform or a topic operator).
+- Rate limiter fails open on Redis errors and logs — availability over strictness for this scenario.
+- Secrets are base64 (not encrypted) — this is intentionally a demo. Production would use sealed-secrets, External Secrets Operator, or Vault.
