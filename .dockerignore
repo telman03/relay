@@ -1,0 +1,13 @@
+# Don't ship local junk into the build context
+.git
+.gitignore
+.DS_Store
+.vscode
+.idea
+README.md
+BUILD.md
+docker-compose.yaml
+k8s/
+docker/
+bin/
+*.md

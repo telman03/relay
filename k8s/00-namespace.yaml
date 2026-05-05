@@ -1,0 +1,6 @@
+# Namespaces are like folders for K8s resources.
+# Lets you `kubectl delete ns relay` to wipe everything in one shot.
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: relay

@@ -1,0 +1,12 @@
+# ConfigMap = non-secret config injected as env vars or files.
+# Different ConfigMap per environment (dev/staging/prod) → same image,
+# different config → core 12-factor principle.
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: relay-config
+  namespace: relay
+data:
+  KAFKA_BROKER: "relay-kafka:9092"
+  KAFKA_TOPIC: "relay.jobs"
+  REDIS_ADDR: "relay-redis:6379"

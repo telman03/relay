@@ -1,0 +1,54 @@
+# API service: stateless gRPC server, can scale to N replicas.
+# envFrom pulls the whole ConfigMap as env vars — clean and concise.
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: relay-api
+  namespace: relay
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: relay-api
+  template:
+    metadata:
+      labels:
+        app: relay-api
+    spec:
+      containers:
+        - name: api
+          image: relay-api:local
+          imagePullPolicy: Never  # NEVER pull; only use local cache (no registry)
+          ports:
+            - containerPort: 8080
+          envFrom:
+            - configMapRef:
+                name: relay-config
+            - secretRef:
+                name: relay-secrets
+          # Liveness probe: K8s restarts the pod if this fails.
+          # In a real service you'd hit a /healthz HTTP endpoint;
+          # a TCP check is the cheap version.
+          livenessProbe:
+            tcpSocket:
+              port: 8080
+            initialDelaySeconds: 5
+            periodSeconds: 10
+          readinessProbe:
+            tcpSocket:
+              port: 8080
+            initialDelaySeconds: 2
+            periodSeconds: 5
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: relay-api
+  namespace: relay
+spec:
+  type: ClusterIP
+  selector:
+    app: relay-api
+  ports:
+    - port: 8080
+      targetPort: 8080

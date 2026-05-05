@@ -4,13 +4,14 @@ import (
 	"context"
 	"log"
 	"net"
+	"os"
 	"strconv"
 	"time"
 
+	"github.com/redis/go-redis/v9"
 	relaykafka "github.com/telman03/relay/internal/kafka"
 	pb "github.com/telman03/relay/internal/pb"
 	"github.com/telman03/relay/internal/ratelimit"
-	"github.com/redis/go-redis/v9"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/reflection"
 )
@@ -66,16 +67,21 @@ func (s *relayServer) SubmitJob(ctx context.Context, req *pb.SubmitJobRequest) (
 }
 
 func main() {
+	// Read from env so the same binary works locally AND in K8s
+	// (config values come from a ConfigMap in K8s, fallback for local dev).
+	redisAddr := getEnv("REDIS_ADDR", "localhost:6379")
+	kafkaBroker := getEnv("KAFKA_BROKER", "localhost:9092")
+	kafkaTopic := getEnv("KAFKA_TOPIC", "relay.jobs")
+
 	// --- Redis client + rate limiter ---
-	rdb := redis.NewClient(&redis.Options{Addr: "localhost:6379"})
+	rdb := redis.NewClient(&redis.Options{Addr: redisAddr})
 	defer rdb.Close()
 
 	// capacity=5, refill=1/sec → first 5 requests instant, then 1/sec steady.
-	// With this config, a tight loop of 20 requests should see ~5 accepted, ~15 rate_limited.
 	limiter := ratelimit.NewTokenBucket(rdb, 5, 1.0)
 
 	// --- Kafka producer ---
-	producer := relaykafka.NewProducer([]string{"localhost:9092"}, "relay.jobs")
+	producer := relaykafka.NewProducer([]string{kafkaBroker}, kafkaTopic)
 	defer producer.Close()
 
 	// --- gRPC server ---
@@ -93,4 +99,11 @@ func main() {
 
 	log.Println("listening on :8080")
 	log.Fatal(s.Serve(lis))
+}
+
+func getEnv(key, fallback string) string {
+	if v := os.Getenv(key); v != "" {
+		return v
+	}
+	return fallback
 }

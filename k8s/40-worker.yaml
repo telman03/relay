@@ -1,0 +1,24 @@
+# Worker: no Service needed (no inbound traffic — it pulls from Kafka).
+# Scale by increasing replicas; Kafka rebalances partitions across consumer-group members.
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: relay-worker
+  namespace: relay
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: relay-worker
+  template:
+    metadata:
+      labels:
+        app: relay-worker
+    spec:
+      containers:
+        - name: worker
+          image: relay-worker:local
+          imagePullPolicy: Never  # NEVER pull; only use local cache
+          envFrom:
+            - configMapRef:
+                name: relay-config

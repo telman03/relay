@@ -1,0 +1,19 @@
+# --- Build stage ---
+FROM golang:1.25-alpine AS builder
+WORKDIR /app
+
+# Cache deps separately from source so source-only changes don't redownload.
+COPY go.mod go.sum ./
+RUN go mod download
+
+COPY . .
+# CGO_ENABLED=0 → fully static binary, runs on scratch/distroless without glibc.
+RUN CGO_ENABLED=0 GOOS=linux go build -o /app/bin/api ./cmd/api
+
+# --- Runtime stage ---
+FROM alpine:3.19
+RUN apk --no-cache add ca-certificates && adduser -D -u 1000 appuser
+COPY --from=builder /app/bin/api /app/bin/api
+USER appuser
+EXPOSE 8080
+CMD ["/app/bin/api"]

@@ -1,0 +1,39 @@
+# Redis = stateless-ish from K8s' point of view (single replica, no replication).
+# A real production Redis would be StatefulSet + Sentinel/Cluster, but for
+# a playground a Deployment is fine — and demonstrates the simpler primitive.
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: relay-redis
+  namespace: relay
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: relay-redis
+  template:
+    metadata:
+      labels:
+        app: relay-redis
+    spec:
+      containers:
+        - name: redis
+          image: redis:7-alpine
+          ports:
+            - containerPort: 6379
+---
+# ClusterIP Service = stable DNS name inside the cluster.
+# Other pods reach Redis at "relay-redis:6379" (or fully qualified
+# "relay-redis.relay.svc.cluster.local:6379").
+apiVersion: v1
+kind: Service
+metadata:
+  name: relay-redis
+  namespace: relay
+spec:
+  type: ClusterIP
+  selector:
+    app: relay-redis
+  ports:
+    - port: 6379
+      targetPort: 6379
