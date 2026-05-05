@@ -2,11 +2,7 @@
 
 A small two-service Go stack demonstrating **gRPC, Kafka, Redis, Docker, and Kubernetes** in one repo.
 
-```
-[Client] --gRPC--> [api] --produce--> [Kafka] --consume--> [worker]
-                     |
-                     +--rate limit--> [Redis]
-```
+![Architecture diagram](<Drawing 2026-05-05 14.44.45.excalidraw.png>)
 
 ## Services
 
