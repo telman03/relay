@@ -5,16 +5,16 @@ package relay;
 option go_package = "github.com/telman03/relay/internal/pb;pb";
 
 service Relay {
-    rpc SubmitJob(SubmitJobRequest) returns (SubmitJobResponse);
+  rpc SubmitJob(SubmitJobRequest) returns (SubmitJobResponse);
 }
 
 message SubmitJobRequest {
-    string client_id = 1;
-    string payload = 2;
+  string client_id = 1;
+  string payload = 2;
 }
 
 message SubmitJobResponse {
-    string job_id = 1;
-    bool accepted = 2;
-    string reason = 3;
+  string job_id = 1;
+  bool accepted = 2;
+  string reason = 3;
 }

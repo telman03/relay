@@ -2,7 +2,7 @@
 // versions:
 // 	protoc-gen-go v1.36.11
 // 	protoc        v5.29.3
-// source: proto/relay.proto
+// source: relay.proto
 
 package pb
 
@@ -31,7 +31,7 @@ type SubmitJobRequest struct {
 
 func (x *SubmitJobRequest) Reset() {
 	*x = SubmitJobRequest{}
-	mi := &file_proto_relay_proto_msgTypes[0]
+	mi := &file_relay_proto_msgTypes[0]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -43,7 +43,7 @@ func (x *SubmitJobRequest) String() string {
 func (*SubmitJobRequest) ProtoMessage() {}
 
 func (x *SubmitJobRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_proto_relay_proto_msgTypes[0]
+	mi := &file_relay_proto_msgTypes[0]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -56,7 +56,7 @@ func (x *SubmitJobRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use SubmitJobRequest.ProtoReflect.Descriptor instead.
 func (*SubmitJobRequest) Descriptor() ([]byte, []int) {
-	return file_proto_relay_proto_rawDescGZIP(), []int{0}
+	return file_relay_proto_rawDescGZIP(), []int{0}
 }
 
 func (x *SubmitJobRequest) GetClientId() string {
@@ -84,7 +84,7 @@ type SubmitJobResponse struct {
 
 func (x *SubmitJobResponse) Reset() {
 	*x = SubmitJobResponse{}
-	mi := &file_proto_relay_proto_msgTypes[1]
+	mi := &file_relay_proto_msgTypes[1]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -96,7 +96,7 @@ func (x *SubmitJobResponse) String() string {
 func (*SubmitJobResponse) ProtoMessage() {}
 
 func (x *SubmitJobResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_proto_relay_proto_msgTypes[1]
+	mi := &file_relay_proto_msgTypes[1]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -109,7 +109,7 @@ func (x *SubmitJobResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use SubmitJobResponse.ProtoReflect.Descriptor instead.
 func (*SubmitJobResponse) Descriptor() ([]byte, []int) {
-	return file_proto_relay_proto_rawDescGZIP(), []int{1}
+	return file_relay_proto_rawDescGZIP(), []int{1}
 }
 
 func (x *SubmitJobResponse) GetJobId() string {
@@ -133,11 +133,11 @@ func (x *SubmitJobResponse) GetReason() string {
 	return ""
 }
 
-var File_proto_relay_proto protoreflect.FileDescriptor
+var File_relay_proto protoreflect.FileDescriptor
 
-const file_proto_relay_proto_rawDesc = "" +
+const file_relay_proto_rawDesc = "" +
 	"\n" +
-	"\x11proto/relay.proto\x12\x05relay\"I\n" +
+	"\vrelay.proto\x12\x05relay\"I\n" +
 	"\x10SubmitJobRequest\x12\x1b\n" +
 	"\tclient_id\x18\x01 \x01(\tR\bclientId\x12\x18\n" +
 	"\apayload\x18\x02 \x01(\tR\apayload\"^\n" +
@@ -149,23 +149,23 @@ const file_proto_relay_proto_rawDesc = "" +
 	"\tSubmitJob\x12\x17.relay.SubmitJobRequest\x1a\x18.relay.SubmitJobResponseB*Z(github.com/telman03/relay/internal/pb;pbb\x06proto3"
 
 var (
-	file_proto_relay_proto_rawDescOnce sync.Once
-	file_proto_relay_proto_rawDescData []byte
+	file_relay_proto_rawDescOnce sync.Once
+	file_relay_proto_rawDescData []byte
 )
 
-func file_proto_relay_proto_rawDescGZIP() []byte {
-	file_proto_relay_proto_rawDescOnce.Do(func() {
-		file_proto_relay_proto_rawDescData = protoimpl.X.CompressGZIP(unsafe.Slice(unsafe.StringData(file_proto_relay_proto_rawDesc), len(file_proto_relay_proto_rawDesc)))
+func file_relay_proto_rawDescGZIP() []byte {
+	file_relay_proto_rawDescOnce.Do(func() {
+		file_relay_proto_rawDescData = protoimpl.X.CompressGZIP(unsafe.Slice(unsafe.StringData(file_relay_proto_rawDesc), len(file_relay_proto_rawDesc)))
 	})
-	return file_proto_relay_proto_rawDescData
+	return file_relay_proto_rawDescData
 }
 
-var file_proto_relay_proto_msgTypes = make([]protoimpl.MessageInfo, 2)
-var file_proto_relay_proto_goTypes = []any{
+var file_relay_proto_msgTypes = make([]protoimpl.MessageInfo, 2)
+var file_relay_proto_goTypes = []any{
 	(*SubmitJobRequest)(nil),  // 0: relay.SubmitJobRequest
 	(*SubmitJobResponse)(nil), // 1: relay.SubmitJobResponse
 }
-var file_proto_relay_proto_depIdxs = []int32{
+var file_relay_proto_depIdxs = []int32{
 	0, // 0: relay.Relay.SubmitJob:input_type -> relay.SubmitJobRequest
 	1, // 1: relay.Relay.SubmitJob:output_type -> relay.SubmitJobResponse
 	1, // [1:2] is the sub-list for method output_type
@@ -175,26 +175,26 @@ var file_proto_relay_proto_depIdxs = []int32{
 	0, // [0:0] is the sub-list for field type_name
 }
 
-func init() { file_proto_relay_proto_init() }
-func file_proto_relay_proto_init() {
-	if File_proto_relay_proto != nil {
+func init() { file_relay_proto_init() }
+func file_relay_proto_init() {
+	if File_relay_proto != nil {
 		return
 	}
 	type x struct{}
 	out := protoimpl.TypeBuilder{
 		File: protoimpl.DescBuilder{
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
-			RawDescriptor: unsafe.Slice(unsafe.StringData(file_proto_relay_proto_rawDesc), len(file_proto_relay_proto_rawDesc)),
+			RawDescriptor: unsafe.Slice(unsafe.StringData(file_relay_proto_rawDesc), len(file_relay_proto_rawDesc)),
 			NumEnums:      0,
 			NumMessages:   2,
 			NumExtensions: 0,
 			NumServices:   1,
 		},
-		GoTypes:           file_proto_relay_proto_goTypes,
-		DependencyIndexes: file_proto_relay_proto_depIdxs,
-		MessageInfos:      file_proto_relay_proto_msgTypes,
+		GoTypes:           file_relay_proto_goTypes,
+		DependencyIndexes: file_relay_proto_depIdxs,
+		MessageInfos:      file_relay_proto_msgTypes,
 	}.Build()
-	File_proto_relay_proto = out.File
-	file_proto_relay_proto_goTypes = nil
-	file_proto_relay_proto_depIdxs = nil
+	File_relay_proto = out.File
+	file_relay_proto_goTypes = nil
+	file_relay_proto_depIdxs = nil
 }
